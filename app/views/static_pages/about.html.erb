@@ -1,0 +1,40 @@
+<h1>About</h1>
+<p>
+  This rails application is intended to be a web-based <em>Sim App</em> that
+  utilizes ANSYS at the back end to determine the <em>free-free</em> modal
+  frequencies and mode shapes of imported CAD geometry.  The user will input
+  the following:
+</p>
+<ul>
+  <li>Geometry (currently only IGES format)</li>
+  <li>Requested number of modes or frequency range to report</li>
+    <ul>
+      <li>The first 6 rigid-body modes from the free-free analysis will be
+      ignored.</li>
+    </ul>
+  <li>Mesh size as a factor of characteristic length.</li>
+</ul>
+<p>
+  The app is intended to be a generalized front end for ANSYS as an Eigensolver.
+</p>
+<p>
+  Results will be presented quantitatively in table format based on the number
+  of requested modes. Additionally, interactive plots will be generated through
+  Paraview so that mode shapes can be examined.
+</p>
+<p>
+  Requirements:
+  <ul>
+    <li>ANSYS Mechanical APDL v16.2</li>
+    <li>Paraview v.4.4.0</li>
+    <ul>
+      <li>With OSMesa libraries for off-screen rendering.</li>
+      <li>See <a href="http://www.paraview.org/Wiki/ParaView/ParaView_And_Mesa_3D">
+        here</a> for build and install instructions.
+    </ul>
+  </ul>
+</p>
+<p>
+  Developed by <a href="mailto:jkopp@mkei.org">Joel Kopp</a> for the
+  <a href="https://www.mkei.org">Milwaukee Institute</a>.
+</p>

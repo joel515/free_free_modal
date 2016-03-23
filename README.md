@@ -6,14 +6,14 @@ shapes of imported CAD geometry.  The user will input the following:
 
   * Geometry (currently only IGES format)
   * Requested number of modes or frequency range to report
-    * The first 6 rigid-body modes from the free-free analysis will be skipped.
+    * The first 6 rigid-body modes from the free-free analysis will be ignored.
   * Mesh size as a factor of characteristic length.
 
 The app is intended to be a generalized front end for ANSYS as an Eigensolver.
 
 Results will be presented quantitatively in table format based on the number of
-requested modes. Additionally, plots will be generated through Paraview so that
-mode shapes can be examined.
+requested modes. Additionally, interactive plots will be generated through
+Paraview so that mode shapes can be examined.
 
 Requirements:
   * ANSYS Mechanical APDL v16.2
