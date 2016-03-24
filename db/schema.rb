@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160324153225) do
+ActiveRecord::Schema.define(version: 20160324214245) do
 
   create_table "jobs", force: :cascade do |t|
     t.string   "pid"
@@ -23,6 +23,11 @@ ActiveRecord::Schema.define(version: 20160324153225) do
     t.integer  "material_id"
     t.datetime "created_at",                          null: false
     t.datetime "updated_at",                          null: false
+    t.integer  "meshsize",    default: 6
+    t.string   "method",      default: "lanb"
+    t.integer  "modes"
+    t.float    "freqb"
+    t.float    "freqe"
   end
 
   add_index "jobs", ["material_id"], name: "index_jobs_on_material_id"

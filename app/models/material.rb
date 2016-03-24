@@ -1,4 +1,5 @@
 class Material < ActiveRecord::Base
+  has_many :jobs
   validates :name,    presence: true
   validates :modulus, presence: true, numericality: { greater_than: 0 }
   validates :poisson, presence: true,
