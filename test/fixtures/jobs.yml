@@ -1,0 +1,19 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  pid: MyString
+  jobdir: MyString
+  status: MyString
+  nodes: 1
+  processors: 1
+  name: MyString
+  material_id: 
+
+two:
+  pid: MyString
+  jobdir: MyString
+  status: MyString
+  nodes: 1
+  processors: 1
+  name: MyString
+  material_id: 

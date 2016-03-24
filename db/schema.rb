@@ -11,7 +11,21 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160323213526) do
+ActiveRecord::Schema.define(version: 20160324153225) do
+
+  create_table "jobs", force: :cascade do |t|
+    t.string   "pid"
+    t.string   "jobdir"
+    t.string   "status",      default: "Unsubmitted"
+    t.integer  "nodes"
+    t.integer  "processors"
+    t.string   "name"
+    t.integer  "material_id"
+    t.datetime "created_at",                          null: false
+    t.datetime "updated_at",                          null: false
+  end
+
+  add_index "jobs", ["material_id"], name: "index_jobs_on_material_id"
 
   create_table "materials", force: :cascade do |t|
     t.string   "name",         default: "Structural Steel"
