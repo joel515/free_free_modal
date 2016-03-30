@@ -1,7 +1,7 @@
 module AnsysJob
   extend ActiveSupport::Concern
 
-  ANSYS_EXE = "/gpfs/apps/ansys/v---/ansys/bin/ansys---"
+  ANSYS_EXE = "/gpfs/apps/ansys/v162/ansys/bin/ansys162"
 
   # Capture the job stats and return the data as a hash.
   def job_stats
@@ -32,11 +32,12 @@ module AnsysJob
     # Generate the submit script and submit the job using qsub.
     def submit_job
       input_deck = generate_input_deck
-      results_script = generate_results_script
+      # results_script = generate_results_script
 
       if !input_deck.nil? && !results_script.nil?
-        submit_script = generate_submit_script(input_deck:     input_deck,
-                                               results_script: results_script)
+        submit_script = generate_submit_script(input_deck: input_deck)
+        # submit_script = generate_submit_script(input_deck:     input_deck,
+        #                                        results_script: results_script)
 
         if !submit_script.nil?
           Dir.chdir(jobdir) {
@@ -155,5 +156,52 @@ module AnsysJob
       end
 
       input_deck.exist? ? input_deck : nil
+    end
+
+        # Write the Bash script used to submit the job to the cluster.  The job
+    # first generates the geometry and mesh using GMSH, converts the mesh to
+    # Elmer format using ElmerGrid, solves using ElmerSolver, then creates
+    # 3D visualization plots of the results using Paraview (batch).
+    def generate_submit_script(args)
+      jobpath = Pathname.new(jobdir)
+      input_deck = Pathname.new(args[:input_deck]).basename
+      # results_script = Pathname.new(args[:results_script]).basename
+      submit_script = jobpath + "#{prefix}.sh"
+      shell_cmd = `which bash`.strip
+      # ruby_cmd = `which ruby`.strip
+      # current_directory = `pwd`.strip
+      # lib_directory = Pathname.new(current_directory) + "lib"
+      # csv2vtu_script = lib_directory + "csv2vtu.rb"
+      File.open(submit_script, 'w') do |f|
+        f.puts "#!#{shell_cmd}"
+
+        f.puts "#PBS -S #{shell_cmd}"
+        f.puts "#PBS -N #{prefix}"
+        f.puts "#PBS -l nodes=#{machines}:ppn=#{cores}"
+        f.puts "#PBS -j oe"
+        f.puts "module load openmpi/gcc/64/1.10.1"
+        f.puts "machines=`uniq -c ${PBS_NODEFILE} | " \
+          "awk '{print $2 \":\" $1}' | paste -s -d ':'`"
+        f.puts "cd ${PBS_O_WORKDIR}"
+        f.puts "#{ANSYS_EXE} -b -dis -machines $machines -i #{input_deck}"
+
+        # f.puts "#{ruby_cmd} #{csv2vtu_script} \"#{jobpath}\" \"#{prefix}\" " \
+        #   "\"#{displ_scale}\""
+
+        # f.puts "#{MPI_EXE} -np #{cores * machines} " * use_mpi?.to_i +
+        #   "#{PARAVIEW_EXE} #{results_script}"
+      end
+
+      submit_script.exist? ? submit_script : nil
+    end
+
+    def output_ok?(std_out)
+      errors = nil
+      File.foreach(std_out) do |line|
+        errors = line.split[5].to_i if line.include? \
+          "NUMBER OF ERROR   MESSAGES ENCOUNTERED="
+      end
+
+      !errors.nil? && errors == 0
     end
 end
