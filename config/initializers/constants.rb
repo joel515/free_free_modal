@@ -5,6 +5,17 @@ MPI_EXE =      "mpirun"
 
 GRAVITY = 9.80665
 
+METHODS = {
+  lanb:   "Block Lanczos",
+  lanpcg: "PCG Lanczos",
+  snode:  "Supernode modal solver",
+  subsp:  "Subspace algorithm",
+  unsym:  "Unsymmetric matrix",
+  damp:   "Damped system",
+  qrdamp: "Damped system-QR algorithm",
+  vt:     "Variational Technology"
+}
+
 DIMENSIONAL_UNITS = {
   m:  { convert: 1,      text: "m" },
   mm: { convert: 0.001,  text: "mm" },

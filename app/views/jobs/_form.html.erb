@@ -1,0 +1,184 @@
+<%= form_for(setup_job(@job)) do |f| %>
+  <div class="row">
+    <div class="col-md-12">
+      <%= render 'shared/error_messages' %>
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <strong>Name</strong>
+        </div>
+        <table class="table">
+          <tbody>
+            <tr><td><%= f.text_field :name, class: 'form-control' %></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <strong>Simulation Parameters</strong>
+        </div>
+        <table class="table">
+          <tbody>
+            <tr>
+              <td>Eigensolver</td>
+              <td>
+                <%= f.select :method,
+                  METHODS.map { |k,v| [v, k.to_s] }, {},
+                  { class: "form-control blue-select" } %>
+              </td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Mesh Size</td>
+              <td>
+                <%= f.select :meshsize,
+                  (1..10).map { |i| [i.to_s, i] }, {},
+                  { class: "form-control blue-select" } %>
+              </td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Number of Modes to Extract</td>
+              <td>
+                <%= f.text_field :modes, class: 'form-control' %>
+              </td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>First Frequency in Range</td>
+              <td>
+                <%= f.text_field :freqb, class: 'form-control' %>
+              </td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Last Frequency in Range</td>
+              <td>
+                <%= f.text_field :freqe, class: 'form-control' %>
+              </td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <strong>Job Specific Parameters</strong>
+        </div>
+        <table class="table">
+          <tbody>
+            <tr>
+              <td>Number of Nodes</td>
+              <td>
+                <%= f.select :processors,
+                  (1..MAX_NODE).map { |i| [i.to_s, i] }, {},
+                  { class: "form-control blue-select" } %>
+              </td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Processors per Node</td>
+              <td>
+                <%= f.select :nodes,
+                  (1..MAX_PPN).map { |i| [i.to_s, i] }, {},
+                  { class: "form-control blue-select" } %>
+              </td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <strong>Geometry</strong>
+        </div>
+        <table class="table">
+          <tbody>
+            <tr>
+              <td>Iges File</td>
+              <td>
+                <div id="fileupload" style="padding-bottom:15px;">
+                  <div class="wrapper">
+                    <%= f.file_field :geom_file, class: "form-control"%>
+                  </div>
+                  <% if @job.geom_file? %>
+                    <%= button_tag "<span class='glyphicon glyphicon-ok'></span> "\
+                      "#{@job.geom_file_identifier}".html_safe, class: "btn btn-ftegreen btn-md", id: "file-button" %>
+                  <% else %>
+                    <%= button_tag "<span class='glyphicon glyphicon-plus'></span> "\
+                      "Select file".html_safe, class: "btn btn-ftered btn-md", id: "file-button" %>
+                  <% end %>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>Input Spatial Units</td>
+              <td>
+                <%= f.select :geom_units,
+                  DIMENSIONAL_UNITS.map { |k,v| [v, k.to_s] }, {},
+                  { class: "form-control blue-select" } %>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <strong>Material Properties</strong>
+        </div>
+        <table class="table">
+          <tbody>
+            <tr>
+              <td>Material</td>
+              <td>
+                <%= f.collection_select :material_id, Material.all,
+                  :id, :name, {}, { class: "form-control blue-select" } %>
+              </td>
+            </tr>
+            <tr>
+              <th>Elastic Modulus (<%= unit_text(@job.material, :modulus) %>)</th>
+              <th>Poisson's Ratio</th>
+              <th>Density (<%= unit_text(@job.material, :density) %>)</th>
+            </tr>
+            <tr>
+              <td>
+                <div id="modulus">
+                  <%= @job.material.modulus %>
+                </div>
+              </td>
+              <td>
+                <div id="poisson">
+                  <%= @job.material.poisson %>
+                </div>
+              </td>
+              <td>
+                <div id="density">
+                  <%= @job.material.density %>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <%= f.submit yield(:button_text), class: "btn btn-success" %>
+    </div>
+  </div>
+<% end %>
+<script>
+  $(document).ready(function() {
+    $('#job_material_id').change(function() {
+      $.ajax({
+        url: "<%= update_material_path %>",
+        data: {
+          material_id: $("#job_material_id option:selected").val()
+        },
+        dataType: "script"
+      });
+    });
+  });
+</script>

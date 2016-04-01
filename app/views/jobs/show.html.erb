@@ -1,0 +1,102 @@
+<% provide(:title, @job.name) %>
+<h1><%= status_label(@job, text: @job.name) %></h1>
+<div class="row">
+  <div class="col-md-6">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <strong>Geometry</strong>
+      </div>
+      <table class="table">
+        <tbody>
+          <tr>
+            <td>File Name:</td>
+            <td><%= @job.geom_file_identifier %></td>
+          </tr>
+          <tr>
+            <td>Spatial Units:</td>
+            <td><%= DIMENSIONAL_UNITS[@job.geom_units.to_sym][:text] %></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <strong>Job Parameters</strong>
+      </div>
+      <table class="table">
+        <tbody>
+          <tr>
+            <td>Nodes:</td>
+            <td><%= @job.nodes %></td>
+          </tr>
+          <tr>
+            <td>PPN:</td>
+            <td><%= @job.processors %></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <strong>Simulation Parameters</strong>
+      </div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Eigensolver</th>
+            <th>Mesh Size</th>
+            <% if @job.modes.nil? %>
+              <th>Frequency Range</th>
+            <% else %>
+              <th>Number of Modes</th>
+            <% end %>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><%= METHODS[@job.method.to_sym] %></td>
+            <td><%= @job.meshsize %></td>
+            <% if @job.modes.nil? %>
+              <td><%= "#{@job.freqb} Hz - #{@job.freqe} Hz" %></td>
+            <% else %>
+              <td><%= @job.modes %></td>
+            <% end %>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <strong>Material Properties</strong>
+      </div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Elastic Modulus (<%= unit_text(@job.material, :modulus) %>)</th>
+            <th>Poisson's Ratio</th>
+            <th>Density (<%= unit_text(@job.material, :density) %>)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><%= @job.material.name %></td>
+            <td><%= @job.material.modulus %></td>
+            <td><%= @job.material.poisson %></td>
+            <td><%= @job.material.density %></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<% if @job.completed? %>
+  <%= button(@job, :results, text: true, size: 'btn-md') %>
+<% elsif @job.active? || @job.running? %>
+  <%= button(@job, :refresh, text: true, size: 'btn-md') %>
+<% elsif @job.failed? %>
+  <%= button(@job, :stdout,  text: true, size: 'btn-md') %>
+<% end %>
+<%= button_group(@job, text: true, size: 'btn-md') %>

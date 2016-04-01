@@ -1,12 +1,12 @@
 class Job < ActiveRecord::Base
   belongs_to :material
   after_create :create_staging_directories!
+  mount_uploader :geom_file, GeometryUploader
   before_destroy :delete_staging_directories
   default_scope -> { order(created_at: :desc) }
-  validates :user_id,    presence: true
   validates :name,       presence: true, length: { maximum: 15 }
   validates :status,     presence: true
-  # validates :config,     presence: true
+  validates :method,     presence: true
   validates :processors, presence: true,
                          numericality: { only_integer: true,
                                          greater_than_or_equal_to: 1,
@@ -15,6 +15,20 @@ class Job < ActiveRecord::Base
                          numericality: { only_integer: true,
                                          greater_than_or_equal_to: 1,
                                          less_than_or_equal_to: 32 }
+  validates :meshsize,   presence: true,
+                         numericality: { only_integer: true,
+                                         greater_than_or_equal_to: 1,
+                                         less_than_or_equal_to: 10 }
+  validates_presence_of :geom_file
+  validates :geom_units, presence: true
+  validates :material,   presence: true
+  validates :modes,      presence: true, if: :freq_range_nil?,
+                         numericality: { only_integer: true,
+                                         greater_than_or_equal_to: 1 }
+  validates :freqb,      presence: true, if: :modes_nil?,
+                         numericality: true
+  validates :freqe,      presence: true, if: :modes_nil?,
+                         numericality: true
 
   include UnitsHelper
 
@@ -37,17 +51,6 @@ class Job < ActiveRecord::Base
   }
 
   validates_inclusion_of :status, in: JOB_STATUS.values
-
-  METHODS = {
-    lanb:   "Block Lanczos",
-    lanpcg: "PCG Lanczos",
-    snode:  "Supernode modal solver",
-    subsp:  "Subspace algorithm",
-    unsym:  "Unsymmetric matrix",
-    damp:   "Damped system",
-    qrdamp: "Damped system-QR algorithm",
-    vt:     "Variational Technology"
-  }
 
   extend AnsysJob
 
@@ -203,13 +206,13 @@ class Job < ActiveRecord::Base
     end
 
     def create_staging_directories
-      homedir = Pathname.new(HOME) + user.username
+      homedir = Pathname.new(HOME) + "#{`whoami`}"
       return nil unless homedir.directory?
 
       scratchdir = homedir + "Scratch"
       Dir.mkdir(scratchdir) unless scratchdir.directory?
 
-      stagedir = scratchdir + id.to_s
+      stagedir = scratchdir + "ffm-" + id.to_s
       Dir.mkdir(stagedir) unless stagedir.directory?
 
       self.jobdir = stagedir.to_s
@@ -238,5 +241,13 @@ class Job < ActiveRecord::Base
       else
         JOB_STATUS[:f]
       end
+    end
+
+    def freq_range_nil?
+      freqb.nil? || freqe.nil?
+    end
+
+    def modes_nil?
+      modes.nil?
     end
 end

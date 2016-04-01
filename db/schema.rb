@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160324214245) do
+ActiveRecord::Schema.define(version: 20160331153710) do
 
   create_table "jobs", force: :cascade do |t|
     t.string   "pid"
@@ -28,6 +28,8 @@ ActiveRecord::Schema.define(version: 20160324214245) do
     t.integer  "modes"
     t.float    "freqb"
     t.float    "freqe"
+    t.string   "geom_file"
+    t.string   "geom_units"
   end
 
   add_index "jobs", ["material_id"], name: "index_jobs_on_material_id"
