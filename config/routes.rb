@@ -3,6 +3,7 @@ Rails.application.routes.draw do
   get 'help'    => 'static_pages#help'
   get 'contact' => 'static_pages#contact'
   get 'about'   => 'static_pages#about'
+  get 'index'   => 'jobs#index'
   get 'create'  => 'jobs#new'
   get 'jobs/update_material', as: 'update_material'
   resources :jobs do
@@ -13,6 +14,8 @@ Rails.application.routes.draw do
       put 'kill'
       get 'download'
       get 'files'
+      get 'stdout'
+      get 'results'
     end
   end
 

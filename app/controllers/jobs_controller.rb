@@ -1,5 +1,5 @@
 class JobsController < ApplicationController
-  before_action :set_job, only: [:show]
+  before_action :set_job, only: [:show, :submit]
 
   def index
     if Job.any?
@@ -36,6 +36,7 @@ class JobsController < ApplicationController
   end
 
   def submit
+    submit_job
   end
 
   def kill
@@ -48,6 +49,10 @@ class JobsController < ApplicationController
   end
 
   def download
+  end
+
+  def stdout
+    render layout: false
   end
 
   def files
@@ -77,6 +82,10 @@ class JobsController < ApplicationController
         flash[:danger] = "Submission for #{@job.name} failed."
       end
 
-      redirect_to root_url
+      if request.referrer.include? index_path
+        redirect_to request.referrer
+      else
+        redirect_to @job
+      end
     end
 end

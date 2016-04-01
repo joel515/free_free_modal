@@ -52,7 +52,9 @@ class Job < ActiveRecord::Base
 
   validates_inclusion_of :status, in: JOB_STATUS.values
 
-  extend AnsysJob
+  def configure_concern
+    extend AnsysJob
+  end
 
   def prefix
     name.gsub(/\s+/, "").downcase
@@ -112,7 +114,7 @@ class Job < ActiveRecord::Base
   # Submit the job.  Use qsub if using PBS scheduler.  Otherwise run the bash
   # script.  If the latter, capture the group id from the process spawned.
   def submit
-    # configure_concern
+    configure_concern
     submit_job
   end
 
@@ -176,7 +178,7 @@ class Job < ActiveRecord::Base
   end
 
   def stats
-    # configure_concern
+    configure_concern
     job_stats
   end
 
@@ -206,13 +208,16 @@ class Job < ActiveRecord::Base
     end
 
     def create_staging_directories
-      homedir = Pathname.new(HOME) + "#{`whoami`}"
+      homedir = Pathname.new(HOME) + "#{`whoami`.strip}"
       return nil unless homedir.directory?
 
       scratchdir = homedir + "Scratch"
       Dir.mkdir(scratchdir) unless scratchdir.directory?
 
-      stagedir = scratchdir + "ffm-" + id.to_s
+      appdir = scratchdir + "ffm"
+      Dir.mkdir(appdir) unless appdir.directory?
+
+      stagedir = appdir + id.to_s
       Dir.mkdir(stagedir) unless stagedir.directory?
 
       self.jobdir = stagedir.to_s
@@ -229,7 +234,7 @@ class Job < ActiveRecord::Base
     end
 
     def check_completed_status
-      # configure_concern
+      configure_concern
       std_out = stdout
 
       if std_out.exist?

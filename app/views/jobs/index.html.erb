@@ -1,0 +1,42 @@
+<% provide(:title, "Jobs") %>
+<h1>
+  Job list
+  <%= button(nil, :refresh, size: 'btn-lg') %>
+</h1>
+<%= paginate @jobs %>
+<p><%= page_entries_info @jobs, entry_name: 'job' %></p>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Id</th>
+      <th>Name</th>
+      <th>Status</th>
+      <th>Results</th>
+      <th>Eigensolver</th>
+      <th>Mesh Size</th>
+      <th></th>
+    </tr>
+  </thead>
+  <% @jobs.each do |job| %>
+    <tr>
+      <td><%= job.id %></td>
+      <td><%= link_to job.name, job, name: job.prefix %></td>
+      <td><%= status_label(job) %></td>
+      <td>
+        <% if job.completed? %>
+          <div class="btn-group">
+            <%= button(job, :results, text: false, size: 'btn-xs') %>
+          </div>
+        <% elsif job.failed? %>
+          <div class="btn-group">
+            <%= button(job, :stdout,  text: false, size: 'btn-xs') %>
+          </div>
+        <% end %>
+      </td>
+      <td><%= METHODS[job.method.to_sym] %></td>
+      <td><%= job.meshsize %></td>
+      <td><%= button_group(job) %></td>
+    </tr>
+  <% end %>
+</table>

@@ -34,7 +34,7 @@ module AnsysJob
       input_deck = generate_input_deck
       # results_script = generate_results_script
 
-      if !input_deck.nil? && !results_script.nil?
+      if !input_deck.nil? #&& !results_script.nil?
         submit_script = generate_submit_script(input_deck: input_deck)
         # submit_script = generate_submit_script(input_deck:     input_deck,
         #                                        results_script: results_script)
@@ -63,10 +63,10 @@ module AnsysJob
     def generate_input_deck
       input_deck = Pathname.new(jobdir) + "#{prefix}.dat"
 
-      e = convert(beam.material, :modulus)
-      rho = convert(beam.material, :density)
-      geom_file_base = nil
-      geom_file_ext = nil
+      e = convert(material, :modulus)
+      rho = convert(material, :density)
+      geom_file_base = geom_file.file.basename
+      geom_file_ext = geom_file.file.extension
 
       File.open(input_deck, 'w') do |f|
         f.puts "/batch"
@@ -85,7 +85,7 @@ module AnsysJob
         f.puts "et,1,solid187"
         f.puts "r,1"
         f.puts "mp,ex,1,#{e},"
-        f.puts "mp,nuxy,1,#{poisson}"
+        f.puts "mp,nuxy,1,#{material.poisson}"
         f.puts "mp,dens,1,#{rho}"
         f.puts "allsel,all"
         f.puts "vatt,1,1,1"
@@ -99,7 +99,7 @@ module AnsysJob
 
         f.puts "/solu"
         f.puts "antype,2"
-        if nummodes.nil?
+        if modes.nil?
           f.puts "modopt,#{method},,#{freqb},#{freqe}"
         else
           f.puts "modopt,#{method},#{modes+6}"
@@ -177,7 +177,7 @@ module AnsysJob
 
         f.puts "#PBS -S #{shell_cmd}"
         f.puts "#PBS -N #{prefix}"
-        f.puts "#PBS -l nodes=#{machines}:ppn=#{cores}"
+        f.puts "#PBS -l nodes=#{nodes}:ppn=#{processors}"
         f.puts "#PBS -j oe"
         f.puts "module load openmpi/gcc/64/1.10.1"
         f.puts "machines=`uniq -c ${PBS_NODEFILE} | " \

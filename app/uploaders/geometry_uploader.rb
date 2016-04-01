@@ -17,7 +17,7 @@ class GeometryUploader < CarrierWave::Uploader::Base
   # This is a sensible default for uploaders that are meant to be mounted:
   def store_dir
     # "uploads/#{model.class.to_s.underscore}/#{mounted_as}/#{model.id}"
-    "#{`whoami`.strip}/Scratch/ffm-#{model.id}"
+    "#{`whoami`.strip}/Scratch/ffm/#{model.id}"
   end
 
   # store! nil's the cache_id after it finishes so we need to remember it for deletion
