@@ -99,11 +99,7 @@ module AnsysJob
 
         f.puts "/solu"
         f.puts "antype,2"
-        if modes.nil?
-          f.puts "modopt,#{method},,#{freqb},#{freqe}"
-        else
-          f.puts "modopt,#{method},#{modes+6}"
-        end
+        f.puts "modopt,#{method},#{modes+6},#{freqb},#{freqe}"
         f.puts "outres,erase"
         f.puts "outres,all,none"
         f.puts "outres,nsol,all"

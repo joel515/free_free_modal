@@ -22,13 +22,9 @@ class Job < ActiveRecord::Base
   validates_presence_of :geom_file
   validates :geom_units, presence: true
   validates :material,   presence: true
-  validates :modes,      presence: true, if: :freq_range_nil?,
+  validates :modes,      presence: true,
                          numericality: { only_integer: true,
                                          greater_than_or_equal_to: 1 }
-  validates :freqb,      presence: true, if: :modes_nil?,
-                         numericality: true
-  validates :freqe,      presence: true, if: :modes_nil?,
-                         numericality: true
 
   include UnitsHelper
 
@@ -246,13 +242,5 @@ class Job < ActiveRecord::Base
       else
         JOB_STATUS[:f]
       end
-    end
-
-    def freq_range_nil?
-      freqb.nil? || freqe.nil?
-    end
-
-    def modes_nil?
-      modes.nil?
     end
 end
