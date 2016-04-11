@@ -1,5 +1,5 @@
 class JobsController < ApplicationController
-  before_action :set_job, only: [:show, :submit, :edit]
+  before_action :set_job, only: [:show, :submit, :edit, :update]
 
   def index
     if Job.any?
@@ -30,6 +30,19 @@ class JobsController < ApplicationController
   end
 
   def update
+    if @job.editable?
+      if @job.update_attributes(job_params)
+        @job.delete_staging_directories
+        @job.ready
+        flash[:success] = "Successully updated #{@job.name}."
+        redirect_to @job
+      else
+        render 'edit'
+      end
+    else
+      flash[:danger] = "#{@job.name} is not editable at this time."
+      render 'edit'
+    end
   end
 
   def destroy

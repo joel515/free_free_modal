@@ -196,6 +196,21 @@ class Job < ActiveRecord::Base
     duplicate_job
   end
 
+  def get_unit_system
+    case geom_units
+    when "mm"
+      "mpa"
+    when "cm"
+      "cgs"
+    when "in"
+      "usi"
+    when "ft"
+      "usf"
+    else
+      "si"
+    end
+  end
+
   private
 
     def create_staging_directories!

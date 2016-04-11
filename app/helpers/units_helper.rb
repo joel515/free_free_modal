@@ -8,14 +8,20 @@ module UnitsHelper
     end
   end
 
-  def convert(object, param)
+  def convert(object, param, usys = "si")
     object.send(param.to_s) * \
-      UNIT_DESIGNATION[param][object.send(param.to_s<<"_unit").to_sym][:convert] \
-      unless UNIT_DESIGNATION[param].nil?
+      UNIT_DESIGNATION[param][object.send(param.to_s<<"_unit").to_sym][:convert] / \
+        INPUT_UNITS[usys.to_sym][param][:convert] \
+        unless UNIT_DESIGNATION[param].nil?
   end
 
-  def unconvert(object, param)
-    object.send(param.to_s) / \
-      RESULT_UNITS[object.result_unit_system.to_sym][param][:convert]
-  end
+  # def unconvert(object, param)
+  #   object.send(param.to_s) / \
+  #     RESULT_UNITS[object.result_unit_system.to_sym][param][:convert]
+  # end
+
+  # def unconvert(object, param)
+  #   object.send(param.to_s) / \
+  #     INPUT_UNITS[object.get_unit_system.to_sym][param][:convert]
+  # end
 end

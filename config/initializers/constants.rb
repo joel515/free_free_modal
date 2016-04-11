@@ -33,27 +33,26 @@ FORCE_UNITS = {
 }
 
 STRESS_UNITS = {
-  pa:  { convert: 1,              text: "Pa" },
-  kpa: { convert: 1e3,            text: "kPa" },
-  mpa: { convert: 1e6,            text: "MPa" },
-  gpa: { convert: 1e9,            text: "GPa" },
-  psi: { convert: 6894.757293178, text: "psi" },
-  ksi: { convert: 6894757.293178, text: "ksi" }
+  pa:  { convert: 1,               text: "Pa" },
+  ba:  { convert: 0.1,             text: "Ba" },
+  mpa: { convert: 1e6,             text: "MPa" },
+  gpa: { convert: 1e9,             text: "GPa" },
+  psf: { convert: 47.8802415938,   text: "psf" },
+  psi: { convert: 6894.7547895096, text: "psi" }
 }
 
 DENSITY_UNITS = {
-  kgm3:     { convert: 1,            text: "kg/m&sup3;".html_safe },
-  tonnemm3: { convert: 1e12,         text: "tonne/mm&sup3;".html_safe },
-  gcm3:     { convert: 1000,         text: "gm/cm&sup3;".html_safe },
-  gm3:      { convert: 0.001,        text: "gm/m&sup3;".html_safe },
-  lbin3:    { convert: 27679.90471019, text: "lb/in&sup3;".html_safe },
-  lbft3:    { convert: 16.01846337395, text: "lb/ft&sup3;".html_safe }
+  kgm3:     { convert: 1,                text: "kg/m&sup3;".html_safe },
+  tonnemm3: { convert: 1e12,             text: "tonne/mm&sup3;".html_safe },
+  gcm3:     { convert: 1000,             text: "gm/cm&sup3;".html_safe },
+  slugft3:  { convert: 515.3788206107,   text: "slug/ft&sup3;".html_safe },
+  lbfs2in4: { convert: 10686895.2241841, text: "lbf-s&sup2;/in&sup4;".html_safe }
 }
 
 INERTIA_UNITS = {
   m4:  { convert: 1,         text: "m<sup>4</sup>".html_safe },
   mm4: { convert: 0.001**4,  text: "mm<sup>4</sup>".html_safe },
-  in4: { conver2t: 0.0254**4, text: "in<sup>4</sup>".html_safe }
+  in4: { convert: 0.0254**4, text: "in<sup>4</sup>".html_safe }
 }
 
 MASS_UNITS = {
@@ -82,6 +81,29 @@ UNIT_DESIGNATION = {
   inertia:  INERTIA_UNITS,
   mass:     MASS_UNITS,
   torque:   TORQUE_UNITS
+}
+
+INPUT_UNITS = {
+  si: { length: DIMENSIONAL_UNITS[:m],
+        modulus: STRESS_UNITS[:pa],
+        density: DENSITY_UNITS[:kgm3],
+        text: "International" },
+  cgs: { length: DIMENSIONAL_UNITS[:cm],
+         modulus: STRESS_UNITS[:ba],
+         density: DENSITY_UNITS[:gcm3],
+         text: "CGS" },
+  mpa: { length: DIMENSIONAL_UNITS[:mm],
+         modulus: STRESS_UNITS[:mpa],
+         density: DENSITY_UNITS[:tonnemm3],
+         text: "MPa" },
+  usf: { length: DIMENSIONAL_UNITS[:ft],
+         modulus: STRESS_UNITS[:psf],
+         density: DENSITY_UNITS[:slugft3],
+         text: "US Customary (feet)" },
+  usi: { length: DIMENSIONAL_UNITS[:in],
+         modulus: STRESS_UNITS[:psi],
+         density: DENSITY_UNITS[:lbfs2in4],
+         text: "US Customary (inches)" }
 }
 
 RESULT_UNITS = {

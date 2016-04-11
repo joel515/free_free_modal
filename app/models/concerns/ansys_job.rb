@@ -63,8 +63,9 @@ module AnsysJob
     def generate_input_deck
       input_deck = Pathname.new(jobdir) + "#{prefix}.dat"
 
-      e = convert(material, :modulus)
-      rho = convert(material, :density)
+      e = convert(material, :modulus, get_unit_system)
+      rho = convert(material, :density, get_unit_system)
+      debugger
       geom_file_base = geom_file.file.basename
       geom_file_ext = geom_file.file.extension
 
