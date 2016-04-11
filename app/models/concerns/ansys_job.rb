@@ -65,7 +65,6 @@ module AnsysJob
 
       e = convert(material, :modulus, get_unit_system)
       rho = convert(material, :density, get_unit_system)
-      debugger
       geom_file_base = geom_file.file.basename
       geom_file_ext = geom_file.file.extension
 
