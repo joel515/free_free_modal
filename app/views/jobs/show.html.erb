@@ -58,10 +58,14 @@
           <tr>
             <td><%= METHODS[@job.method.to_sym] %></td>
             <td><%= @job.meshsize %></td>
-            <% if @job.modes.nil? %>
-              <td><%= "#{@job.freqb} Hz - #{@job.freqe} Hz" %></td>
-            <% else %>
+            <% if !@job.freqb.nil? && !@job.freqe.nil? %>
+              <td><%= "#{@job.modes} between #{@job.freqb}-#{@job.freqe} Hz" %></td>
+            <% elsif @job.freqb.nil? && @job.freqe.nil? %>
               <td><%= @job.modes %></td>
+            <% elsif @job.freqb.nil? && !@job.freqe.nil? %>
+              <td><%= "#{@job.modes} under #{@job.freqe} Hz" %>
+            <% else %>
+              <td><%= "#{@job.modes} above #{@job.freqb} Hz" %>
             <% end %>
           </tr>
         </tbody>

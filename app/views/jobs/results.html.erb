@@ -1,2 +1,11 @@
-<h1>Jobs#results</h1>
-<p>Find me in app/views/jobs/results.html.erb</p>
+<% provide(:title, "Results") %>
+<h1><%= @job.name %> Results</h1>
+<div class="row">
+  <div class="col-md-3">
+    <%= render 'summary' %>
+  </div>
+  <div class="col-md-6">
+    <%= render 'stats' %>
+  </div>
+</div>
+<%= button_group(@job, text: true, size: 'btn-md') %>

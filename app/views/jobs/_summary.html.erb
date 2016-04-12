@@ -1,0 +1,16 @@
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <strong>Modal Analysis Summary</strong>
+  </div>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Mode</th>
+        <th>Frequency (Hz)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <%= result_table(@job, :modal) %>
+    </tbody>
+  </table>
+</div>

@@ -73,7 +73,7 @@
             <tr>
               <td>Number of Nodes</td>
               <td>
-                <%= f.select :processors,
+                <%= f.select :nodes,
                   (1..MAX_NODE).map { |i| [i.to_s, i] }, {},
                   { class: "form-control blue-select" } %>
               </td>
@@ -82,7 +82,7 @@
             <tr>
               <td>Processors per Node</td>
               <td>
-                <%= f.select :nodes,
+                <%= f.select :processors,
                   (1..MAX_PPN).map { |i| [i.to_s, i] }, {},
                   { class: "form-control blue-select" } %>
               </td>

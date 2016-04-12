@@ -1,5 +1,5 @@
 class JobsController < ApplicationController
-  before_action :set_job, only: [:show, :submit, :edit, :update]
+  before_action :set_job, only: [:show, :submit, :edit, :update, :results]
 
   def index
     if Job.any?

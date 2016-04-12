@@ -26,6 +26,7 @@ class Job < ActiveRecord::Base
                          numericality: { only_integer: true,
                                          greater_than_or_equal_to: 1 }
 
+  include Results
   include UnitsHelper
 
   HOME = "/gpfs/home"

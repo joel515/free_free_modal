@@ -131,4 +131,18 @@ module JobsHelper
     div += "</div>"
     div.html_safe
   end
+
+  def result_table(job, result)
+    html = ""
+    modes = job.send(result.to_s<<"_fem")
+    if modes.nil?
+      html<<"<tr><td>N/A</td><td>N/A</td></tr>"
+    else
+      modes.each do |mode|
+        html<<"<tr><td>#{mode[:mode]}</td><td>#{mode[:freq]}</td></tr>"
+      end
+    end
+
+    html.html_safe
+  end
 end

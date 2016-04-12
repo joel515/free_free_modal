@@ -1,0 +1,27 @@
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <strong>Simulation Statistics</strong>
+  </div>
+  <table class="table">
+    <tbody>
+      <tr>
+        <td>Requested Nodes</td>
+        <td><%= @job.nodes %></td>
+      </tr>
+      <tr>
+        <td>Requested CPUs/Node</td>
+        <td><%= @job.processors %></td>
+      </tr>
+      <% @job.stats.each do |key,value| %>
+        <tr>
+          <td><%= key %></td>
+          <% if value.nil? %>
+            <td>N/A</td>
+          <% else %>
+            <td><%= value %></td>
+          <% end %>
+        <tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
