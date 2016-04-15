@@ -1,5 +1,6 @@
 class JobsController < ApplicationController
-  before_action :set_job, only: [:show, :submit, :edit, :update, :results]
+  before_action :set_job, only: [:show, :submit, :edit, :update, :results, :embed]
+  before_action :get_displayed_mode, only: [:results, :embed]
 
   def index
     if Job.any?
@@ -17,6 +18,9 @@ class JobsController < ApplicationController
   end
 
   def edit
+  end
+
+  def results
   end
 
   def create
@@ -71,6 +75,10 @@ class JobsController < ApplicationController
   def files
   end
 
+  def embed
+    render layout: false, file: @job.graphics_file(@mode)
+  end
+
   def update_material
     @material_id = params[:material_id].to_i
   end
@@ -85,6 +93,10 @@ class JobsController < ApplicationController
 
     def set_job
       @job = Job.find(params[:id])
+    end
+
+    def get_displayed_mode
+      @mode = params[:mode].nil? ? 1 : params[:mode]
     end
 
     def submit_job

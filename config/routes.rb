@@ -16,6 +16,7 @@ Rails.application.routes.draw do
       get 'files'
       get 'stdout'
       get 'results'
+      get 'embed'
     end
   end
 

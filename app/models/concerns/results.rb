@@ -24,21 +24,13 @@ module Results
     end
   end
 
-  # # Gets the Paraview generated WebGL file - returns empty string if
-  # # nonexistant.
-  # # TODO: Remove reference to job configuration below:
-  # def graphics_file(type=:stress)
-  #   job.configure_concern
-  #   results_dir = job.result_path
-  #   results_file = lambda { |f| f.exist? ? f : "" }
-  #   if type == :stress
-  #     results_file.call(results_dir + "#{prefix}_stress.html").to_s
-  #   elsif type == :displ
-  #     results_file.call(results_dir + "#{prefix}_displ.html").to_s
-  #   else
-  #     return ""
-  #   end
-  # end
+  # Gets the Paraview generated WebGL file - returns empty string if
+  # nonexistant.
+  def graphics_file(mode=1)
+    results_dir = Pathname.new(jobdir)
+    results_file = lambda { |f| f.exist? ? f : "" }
+    results_file.call(results_dir + "#{prefix}_mode#{mode}.html").to_s
+  end
 
   # def debug_info
   #   debug_file = Pathname.new(job.jobdir) + "#{prefix}.debug"
