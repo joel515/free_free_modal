@@ -20,6 +20,7 @@ start_types = false
 
 iter = 0
 node_hash = {}
+mode_hash = {}
 node_iter = 0
 num_elements = 0
 max_box = 0
@@ -104,6 +105,7 @@ File.open(vtu_file, 'w') do |f|
           f.print "\n"
           f.puts "        </DataArray>"
         end
+        mode_hash["#{mode.to_i - 6}"] = "Mode #{mode.to_i - 6}(#{freq}Hz)"
         f.puts "        <DataArray type=\"Float64\" Name=\"Mode #{mode.to_i - 6}(#{freq}Hz)\" " \
           "NumberOfComponents=\"3\" format=\"ascii\">"
         f.print "          "
@@ -173,5 +175,52 @@ File.open(vtu_file, 'w') do |f|
     f.puts "    </Piece>"
     f.puts "  </UnstructuredGrid>"
     f.puts "</VTKFile>"
+  end
+end
+
+unless mode_hash.empty?
+  pv_script = jobpath + "#{prefix}.py"
+
+  File.open(pv_script, 'w') do |f|
+    f.puts "from paraview.simple import *"
+    f.puts "paraview.simple._DisableFirstRenderCameraReset()"
+
+    f.puts "modalvtu = XMLUnstructuredGridReader(FileName=[\"#{vtu_file}\"])"
+    modes = mode_hash.values.map { |v| "'#{v}'" }.join(', ')
+    f.puts "modalvtu.PointArrayStatus = [#{modes}]"
+
+    f.puts "renderView1 = GetActiveViewOrCreate('RenderView')"
+
+    f.puts "modalvtuDisplay = Show(modalvtu, renderView1)"
+    mode_hash.each do |k,v|
+      webgl_file = jobpath + "#{prefix}_mode#{k}.webgl"
+      f.puts "SetActiveSource(modalvtu)"
+
+      f.puts "warpByVector#{k} = WarpByVector(Input=modalvtu)"
+      f.puts "warpByVector#{k}.Vectors = ['POINTS', '#{v}']"
+
+      f.puts "warpByVector#{k}Display = Show(warpByVector#{k}, renderView1)"
+      f.puts "ColorBy(warpByVector#{k}Display, ('POINTS', '#{v}'))"
+      f.puts "warpByVector#{k}Display.RescaleTransferFunctionToDataRange(True)"
+      f.puts "warpByVector#{k}Display.SetScalarBarVisibility(renderView1, False)"
+
+      f.puts "mode#{k}LUT = GetColorTransferFunction(" \
+        "'#{v.gsub!(/[^0-9A-Za-z]/, '')}')"
+      f.puts "mode#{k}LUT.RGBPoints = [0.0028445223568242927, " \
+        "0.231373, 0.298039, 0.752941, 4.001847700230793, 0.865003, " \
+        "0.865003, 0.865003, 8.000850878104762, 0.705882, 0.0156863, 0.14902]"
+      f.puts "mode#{k}LUT.ScalarRangeInitialized = 1.0"
+
+      f.puts "mode#{k}PWF = GetOpacityTransferFunction(" \
+        "'#{v.gsub!(/[^0-9A-Za-z]/, '')}')"
+      f.puts "mode#{k}PWF.Points = [0.0028445223568242927, 0.0, 0.5, 0.0, " \
+        "8.000850878104762, 1.0, 0.5, 0.0]"
+      f.puts "mode#{k}PWF.ScalarRangeInitialized = 1"
+
+      f.puts "Hide(modalvtu, renderView1)"
+      f.puts "renderView1.ResetCamera()"
+      f.puts "ExportView(\"#{webgl_file}\", view=renderView1)"
+      f.puts "Hide(warpByVector#{k}, renderView1)"
+    end
   end
 end

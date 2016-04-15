@@ -260,7 +260,7 @@ module AnsysJob
     def generate_submit_script(args)
       jobpath = Pathname.new(jobdir)
       input_deck = Pathname.new(args[:input_deck]).basename
-      # results_script = Pathname.new(args[:results_script]).basename
+      pv_script = jobpath + "#{prefix}.py"
       submit_script = jobpath + "#{prefix}.sh"
       shell_cmd = `which bash`.strip
       ruby_cmd = `which ruby`.strip
@@ -283,8 +283,7 @@ module AnsysJob
         f.puts "#{ruby_cmd} #{csv2vtu_script} \"#{jobpath}\" \"#{prefix}\" " \
           "1 \"#{modes}\""
 
-        # f.puts "#{MPI_EXE} -np #{cores * machines} " * use_mpi?.to_i +
-        #   "#{PARAVIEW_EXE} #{results_script}"
+        f.puts "#{MPI_EXE} -np #{processors * nodes} #{PARAVIEW_EXE} #{pv_script}"
       end
 
       submit_script.exist? ? submit_script : nil
