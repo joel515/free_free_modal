@@ -87,15 +87,37 @@ module AnsysJob
         f.puts "mp,ex,1,#{e},"
         f.puts "mp,nuxy,1,#{material.poisson}"
         f.puts "mp,dens,1,#{rho}"
+
+        # Element properties for thin shell elements.
+        f.puts "et,2,154"
+        f.puts "keyopt,2,2,1"
+        f.puts "keyopt,2,4,1"
+        f.puts "keyopt,2,11,2"
+        f.puts "r,2,"
+        f.puts "mp,dens,2,"
+
         f.puts "allsel,all"
         f.puts "vatt,1,1,1"
         f.puts "smrtsize,#{meshsize}"
         f.puts "mshkey,0"
         f.puts "mshape,1,3d"
         f.puts "vmesh,all"
+
+        # Coat the outside of the mesh with thin shell elements.
+        f.puts "asel,s,all"
+        f.puts "nsla,s,1"
+        f.puts "type,2"
+        f.puts "real,2"
+        f.puts "mat,2"
+        f.puts "local,100,,,,,,,"
+        f.puts "csys,0"
+        f.puts "esys,100"
+        f.puts "esurf,"
+        f.puts "allsel,all"
+
         f.puts "finish"
 
-        f.puts "get,_wallbsol,active,,time,wall"
+        f.puts "*get,_wallbsol,active,,time,wall"
 
         f.puts "/solu"
         f.puts "antype,2"
@@ -122,9 +144,9 @@ module AnsysJob
         f.puts "*get,_nummodes,active,0,set,nset"
         f.puts "*cfopen,#{prefix},modes,,"
         f.puts "*do,i_mode,7,_nummodes"
-        f.puts "  *get,mode_%i_mode%,mode,%i_mode%,freq"
-        f.puts "  *vwrite,'Mode',%i_mode%,mode_%i_mode%"
-        f.puts "  %C,%I,%G"
+        f.puts "*get,mode_%i_mode%,mode,%i_mode%,freq"
+        f.puts "*vwrite,'Mode',%i_mode%,mode_%i_mode%"
+        f.puts "%C,%I,%G"
 
         # If boundary conditions are ever implemented, modal participation and
         # effective mass would be good to know.
@@ -141,9 +163,86 @@ module AnsysJob
 
         f.puts "*enddo"
         f.puts "*cfclos"
+
+        # Write nodal coordinates and displacements and element connectivity
+        # to CSV file.
+        f.puts "nsel,s,ext"
+        f.puts "*get,nnummax,node,,num,max"
+        f.puts "*get,locxmax,node,,mxloc,x"
+        f.puts "*get,locymax,node,,mxloc,y"
+        f.puts "*get,loczmax,node,,mxloc,z"
+        f.puts "*get,locxmin,node,,mnloc,x"
+        f.puts "*get,locymin,node,,mnloc,y"
+        f.puts "*get,loczmin,node,,mnloc,z"
+        f.puts "*get,ncount,node,0,count"
+        f.puts "*del,nmask"
+        f.puts "*del,narray"
+        f.puts "*dim,nmask,array,nnummax"
+        f.puts "*dim,narray,array,nnummax,4"
+        f.puts "*vget,nmask(1),node,1,nsel"
+        f.puts "*vmask,nmask(1)"
+        f.puts "*vget,narray(1,1),node,1,loc,x"
+        f.puts "*vmask,nmask(1)"
+        f.puts "*vget,narray(1,2),node,1,loc,y"
+        f.puts "*vmask,nmask(1)"
+        f.puts "*vget,narray(1,3),node,1,loc,z"
+        f.puts "*vfill,narray(1,4),ramp,1,1"
+        f.puts "esel,s,type,,2"
+        f.puts "*get,enummax,elem,,num,max"
+        f.puts "*get,ecount,elem,0,count"
+        f.puts "*del,emask"
+        f.puts "*del,earray"
+        f.puts "*dim,emask,array,enummax"
+        f.puts "*dim,earray,array,enummax,4"
+        f.puts "*vget,emask(1),elem,1,esel"
+        f.puts "*vmask,emask(1)"
+        f.puts "*vget,earray(1,1),elem,1,node,1"
+        f.puts "*vmask,emask(1)"
+        f.puts "*vget,earray(1,2),elem,1,node,2"
+        f.puts "*vmask,emask(1)"
+        f.puts "*vget,earray(1,3),elem,1,node,3"
+        f.puts "*cfopen,#{prefix},csv"
+        f.puts "*vwrite,ncount,ecount,locxmax,locymax,loczmax,locxmin,locymin,loczmin"
+        f.puts "%I,%I,%G,%G,%G,%G,%G,%G"
+        f.puts "*do,i_mode,7,_nummodes"
+        f.puts "set,,, ,,, ,i_mode"
+        f.puts "*del,darray"
+        f.puts "*dim,darray,array,nnummax,3"
+        f.puts "*vmask,nmask(1)"
+        f.puts "*vget,darray(1,1),node,1,u,x"
+        f.puts "*vmask,nmask(1)"
+        f.puts "*vget,darray(1,2),node,1,u,y"
+        f.puts "*vmask,nmask(1)"
+        f.puts "*vget,darray(1,3),node,1,u,z"
+        f.puts "*vscfun,dmax1,max,darray(1,1)"
+        f.puts "*vscfun,dmax2,max,darray(1,2)"
+        f.puts "*vscfun,dmax3,max,darray(1,3)"
+        f.puts "*vscfun,dmin1,min,darray(1,1)"
+        f.puts "*vscfun,dmin2,min,darray(1,2)"
+        f.puts "*vscfun,dmin3,min,darray(1,3)"
+        f.puts "*get,freq,mode,i_mode,freq"
+        f.puts "*vwrite,'MODE',i_mode,freq,dmax1,dmax2,dmax3,dmin1,dmin2,dmin3"
+        f.puts "%C,%I,%G,%G,%G,%G,%G,%G,%G"
+        f.puts "*vmask,nmask(1)"
+        f.puts "*vwrite,narray(1,4),darray(1,1),darray(1,2),darray(1,3)"
+        f.puts "%I,%G,%G,%G"
+        f.puts "*enddo"
+        f.puts "*vwrite,'STARTNODES'"
+        f.puts "%C"
+        f.puts "*vmask,nmask(1)"
+        f.puts "*vwrite,narray(1,4),narray(1,1),narray(1,2),narray(1,3)"
+        f.puts "%I,%G,%G,%G"
+        f.puts "*vwrite,'STARTELEMENTS'"
+        f.puts "%C"
+        f.puts "*vmask,emask(1)"
+        f.puts "*vwrite,earray(1,1),earray(1,2),earray(1,3)"
+        f.puts "%I,%I,%I"
+        f.puts "*vwrite,'EOF'"
+        f.puts "%C"
+        f.puts "*cfclos"
         f.puts "finish"
 
-        f.puts "get,_walldone,active,,time,wall"
+        f.puts "*get,_walldone,active,,time,wall"
         f.puts "_preptime=(_wallbsol-_wallstrt)*3600"
         f.puts "_solvtime=(_wallasol-_wallbsol)*3600"
         f.puts "_posttime=(_walldone-_wallasol)*3600"
@@ -164,10 +263,10 @@ module AnsysJob
       # results_script = Pathname.new(args[:results_script]).basename
       submit_script = jobpath + "#{prefix}.sh"
       shell_cmd = `which bash`.strip
-      # ruby_cmd = `which ruby`.strip
-      # current_directory = `pwd`.strip
-      # lib_directory = Pathname.new(current_directory) + "lib"
-      # csv2vtu_script = lib_directory + "csv2vtu.rb"
+      ruby_cmd = `which ruby`.strip
+      current_directory = `pwd`.strip
+      lib_directory = Pathname.new(current_directory) + "lib"
+      csv2vtu_script = lib_directory + "csv2vtu.rb"
       File.open(submit_script, 'w') do |f|
         f.puts "#!#{shell_cmd}"
 
@@ -181,8 +280,8 @@ module AnsysJob
         f.puts "cd ${PBS_O_WORKDIR}"
         f.puts "#{ANSYS_EXE} -b -dis -machines $machines -i #{input_deck}"
 
-        # f.puts "#{ruby_cmd} #{csv2vtu_script} \"#{jobpath}\" \"#{prefix}\" " \
-        #   "\"#{displ_scale}\""
+        f.puts "#{ruby_cmd} #{csv2vtu_script} \"#{jobpath}\" \"#{prefix}\" " \
+          "1 \"#{modes}\""
 
         # f.puts "#{MPI_EXE} -np #{cores * machines} " * use_mpi?.to_i +
         #   "#{PARAVIEW_EXE} #{results_script}"
