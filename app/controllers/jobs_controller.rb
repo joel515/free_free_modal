@@ -1,5 +1,6 @@
 class JobsController < ApplicationController
-  before_action :set_job, only: [:show, :submit, :edit, :update, :results, :embed]
+  before_action :set_job, only: [:show, :submit, :edit, :update, :results,
+                                 :embed, :stdout]
   before_action :get_displayed_mode, only: [:results, :embed]
 
   def index

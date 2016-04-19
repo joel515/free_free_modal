@@ -24,12 +24,33 @@ module Results
     end
   end
 
+  def mode_count
+    jobpath = Pathname.new(jobdir)
+    result_file = jobpath + "#{prefix}.modes"
+
+    count = 0
+    if result_file.exist?
+      File.foreach(result_file) do |line|
+        count += 1 if line.include? "Mode"
+      end
+    end
+    count
+  end
+
   # Gets the Paraview generated WebGL file - returns empty string if
   # nonexistant.
   def graphics_file(mode=1)
     results_dir = Pathname.new(jobdir)
     results_file = lambda { |f| f.exist? ? f : "" }
     results_file.call(results_dir + "#{prefix}_mode#{mode}.html").to_s
+  end
+
+  def next_mode(current_mode)
+    current_mode == mode_count ? 1 : current_mode + 1
+  end
+
+  def previous_mode(current_mode)
+    current_mode == 1 ? mode_count : current_mode - 1
   end
 
   # def debug_info
