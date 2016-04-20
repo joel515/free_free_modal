@@ -139,7 +139,7 @@ module JobsHelper
       html<<"<tr><td>N/A</td><td>N/A</td></tr>"
     else
       modes.each do |mode|
-        html<<"<tr><td>#{mode[:mode]}</td><td>#{mode[:freq]}</td></tr>"
+        html<<"<tr><td>#{mode[:mode]}</td><td>#{'%.2f' % mode[:freq]}</td></tr>"
       end
     end
 

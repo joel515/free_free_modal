@@ -53,6 +53,22 @@ module Results
     current_mode == 1 ? mode_count : current_mode - 1
   end
 
+  def modal_frequency(mode)
+    jobpath = Pathname.new(jobdir)
+    result_file = jobpath + "#{prefix}.modes"
+
+    if result_file.exist?
+      File.foreach(result_file) do |line|
+        if line.include? "Mode"
+          split_line = line.split(',')
+          return "%.2f " % split_line[2] if (split_line[1].to_i - 6) == mode.to_i
+        end
+      end
+    end
+
+    "---"
+  end
+
   # def debug_info
   #   debug_file = Pathname.new(job.jobdir) + "#{prefix}.debug"
   #   debug_file.exist? ? File.open(debug_file, 'r').read : nil
