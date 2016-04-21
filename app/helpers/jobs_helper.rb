@@ -136,10 +136,19 @@ module JobsHelper
     html = ""
     modes = job.send(result.to_s<<"_fem")
     if modes.nil?
-      html<<"<tr><td>N/A</td><td>N/A</td></tr>"
+      html<<"<tr><td>N/A</td><td>N/A</td></tr><td></td>"
     else
       modes.each do |mode|
-        html<<"<tr><td>#{mode[:mode]}</td><td>#{'%.2f' % mode[:freq]}</td></tr>"
+        html<<"<tr><td>#{mode[:mode]}</td>" \
+        "<td>#{'%.2f' % mode[:freq]}</td>" \
+        "<td>" +
+          link_to("<span class='glyphicon glyphicon-sunglasses'>" \
+          "</span>".html_safe,
+          results_job_path(job, mode: mode[:mode].to_i),
+          class: "btn btn-success btn-xs",
+          data: { toggle: 'tooltip', placement: 'top' },
+          title: 'Plot mode ' + mode[:mode].to_s) +
+        "</td></tr>"
       end
     end
 
