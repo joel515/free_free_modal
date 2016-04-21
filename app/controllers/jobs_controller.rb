@@ -1,7 +1,8 @@
 class JobsController < ApplicationController
   before_action :set_job, only: [:show, :submit, :edit, :update, :results,
-                                 :embed, :stdout]
+                                 :embed, :stdout, :destroy]
   before_action :get_displayed_mode, only: [:results, :embed]
+  before_action :get_last_page, only: [:destroy]
 
   def index
     if Job.any?
@@ -51,6 +52,23 @@ class JobsController < ApplicationController
   end
 
   def destroy
+    if @job.destroyable?
+      @job.delete_staging_directories
+      @job.destroy
+      flash[:success] = "Job deleted."
+    else
+      flash[:danger] = "Job cannot be deleted at this time."
+    end
+
+    if request.referrer.include? index_path
+      if @last_page > Job.page.num_pages
+        redirect_to index_path(page: Job.page.num_pages)
+      else
+        redirect_to request.referrer
+      end
+    else
+      redirect_to index_url
+    end
   end
 
   def submit
@@ -113,5 +131,13 @@ class JobsController < ApplicationController
       else
         redirect_to @job
       end
+    end
+
+    # Get the last visited paginated index page when destroying job.  This
+    # provides input to handle a redirect to the previous pagination if the
+    # job being deleted is the last one on the page.
+    def get_last_page
+      query = URI.parse(request.referrer).query
+      @last_page = query.nil? ? 0 : CGI.parse(query)["page"].first.to_i
     end
 end
