@@ -1,7 +1,7 @@
 module AnsysJob
   extend ActiveSupport::Concern
 
-  ANSYS_EXE = "/gpfs/apps/ansys/v162/ansys/bin/ansys162"
+  ANSYS_EXE = "/gpfs/apps/ansys/v170/ansys/bin/ansys170"
 
   # Capture the job stats and return the data as a hash.
   def job_stats
