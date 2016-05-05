@@ -1,6 +1,7 @@
 class JobsController < ApplicationController
   before_action :set_job, only: [:show, :submit, :edit, :update, :results,
-                                 :embed, :stdout, :destroy, :kill, :copy]
+                                 :embed, :stdout, :destroy, :kill, :copy,
+                                 :clean]
   before_action :get_displayed_mode, only: [:results, :embed]
   before_action :get_last_page, only: [:destroy]
 
@@ -108,6 +109,15 @@ class JobsController < ApplicationController
   end
 
   def clean
+    if @job.cleanable?
+      @job.clean_staging_directories
+      @job.ready
+      flash[:success] = "Job directory successfully cleaned."
+    else
+      flash[:danger] = "Job cannot be cleaned at this time."
+    end
+
+    redirect_to request.referrer
   end
 
   def download

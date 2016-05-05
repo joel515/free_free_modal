@@ -159,7 +159,7 @@ class Job < ActiveRecord::Base
       if jobpath.directory?
         jobpath.children.each do |f|
           f.rmtree if f.directory?
-          f.delete unless f.eql? Pathname.new(inputfile.path)
+          f.delete unless f.eql? Pathname.new(geom_file.path)
         end
       end
     end
