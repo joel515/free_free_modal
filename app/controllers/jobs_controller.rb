@@ -1,6 +1,6 @@
 class JobsController < ApplicationController
   before_action :set_job, only: [:show, :submit, :edit, :update, :results,
-                                 :embed, :stdout, :destroy]
+                                 :embed, :stdout, :destroy, :kill, :copy]
   before_action :get_displayed_mode, only: [:results, :embed]
   before_action :get_last_page, only: [:destroy]
 
@@ -76,9 +76,35 @@ class JobsController < ApplicationController
   end
 
   def kill
+    if @job.terminatable?
+      @job.kill
+      flash[:success] = "Terminating #{@job.name}."
+    else
+      flash[:danger] = "#{@job.name} is not running."
+    end
+
+    if request.referrer.include? index_path
+      redirect_to request.referrer
+    else
+      redirect_to @job
+    end
   end
 
   def copy
+    duplicate_job = @job.duplicate
+    debugger
+    if duplicate_job.save
+      debugger
+      if request.referrer.include? index_path
+        redirect_to index_path(page:   Job.page.num_pages,
+                               anchor: duplicate_beam.prefix)
+      else
+        redirect_to duplicate_job
+      end
+    else
+      flash[:danger] = "Unable to copy #{@job.name}."
+      redirect_to request.referrer
+    end
   end
 
   def clean
